@@ -325,7 +325,25 @@ by adding the following lines to your `~/.vimrc` file:
         :highlight ExtraWhitespace ctermbg=red guibg=red
         :match ExtraWhitespace /\s\+$/
 
+1. **Put Checkpatch on PATH**: In order to easily use the
+[checkpatch](https://docs.kernel.org/dev-tools/checkpatch.html) scripts
+we can download the script and spellcheck files to a directory located
+on our `$PATH`. A common place to store programs a user manually downloads
+is the `/usr/local/bin` directory that is also included in the user's `$PATH`.
 
+    sudo wget https://github.com/torvalds/linux/raw/master/scripts/checkpatch.pl -P /usr/local/bin/
+    wget https://github.com/torvalds/linux/raw/master/scripts/spelling.txt -P /usr/local/bin/
+
+1. **Easy Mutt Checkpatch**: We can add two key-binds to the `.muttrc` configuration
+in order to easily use the checkpatch script on peer review submissions. The following
+key-binds allow you to run checkpatch on peer review submissions without leaving mutt!
+
+    ```
+    macro index \Cp "|checkpatch.pl --no-tree --strict --show-types --ignore FILE_PATH_CHANGES"\n
+    macro index \ep "|checkpatch.pl --no-tree --strict --show-types --ignore FILE_PATH_CHANGES --ignore NOT_UNIFIED_DIFF"\n
+    ```
+   * `\Cp`: Use *CTL + P* to run the checkpatch script with the required flags and the `--ignore FILE_PATH_CHANGES` flag to prevent unnecessary warnings.
+   * `\ep`: Use *ALT + P* to run the checkpatch script with the required flags including the `--ignore FILE_PATH_CHANGES` and `--ignore NOT_UNIFIED_DIFF` flags to prevent unnecessary warnings. This is included for use on cover letters.
 ### What to submit:
 
 * The generated patchset from your commit with your cover letter, sent to `setup@COURSE_DOMAIN`
