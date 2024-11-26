@@ -347,25 +347,104 @@ in the shell. See `man 7 glob` for more information.
 
 #### Peer Review Guidelines
 
+You must first open the course website and navigate to the [Course Dashboard](https://fall2024-uml.kdlp.underground.software/dashboard) and locate the students you will be reviewing. If you have not performed an initial submission you will be unable to perform a peer review for that *specific* assignment.
+
 For each student to whom you are assigned, you will do the following:
 
-* Make a new branch off of master/main and switch over to that branch to apply the patches.
+* Scan through the rubric, as each assignment's peer review requirements will be different
+
+* Make a new branch off of the master/main branch and switch over to that branch
+
+* Open *mutt* from within the git repository and locate the student's patchset
+
+  *  **Finding Student's Patches**: You can use the keybind `/` to search for a keyword such as the student's username
+
+* Ensure the students cover letter follows the [Cover Letter Guidelines](#cover-letter-guidelines).
+
+* You must verify that the diffstat output right after the `---` in each patch seems reasonable, for example:
+
+    * If this is patch 2/4, everything that the assignment directions
+      specify to include in patch 2 is present and nothing else
+
+    * If the directions say to put the files into a folder named after
+      the assignment, all files added are in such a folder
+
+    * If the directions say to add your code and a makefile, a file named
+      `Makefile` and at least one file with the `.c` extension are added
+
+    * No stray files unrelated to the assignment are included (e.g. code
+      from other assignments or `.patch` files from previous attempts)
+
+* Verify the student's patches pass the `checkpatch` linter.
+
+  * **Put Checkpatch on PATH**: In order to easily use the
+    [checkpatch](https://docs.kernel.org/dev-tools/checkpatch.html) scripts
+    we can download the script and spellcheck files to a directory located
+    on our `$PATH`. A common place to store programs a user manually downloads
+    is the `/usr/local/bin` directory which is also included in the user's `$PATH`.
+
+        sudo wget https://github.com/torvalds/linux/raw/master/scripts/checkpatch.pl -P /usr/local/bin/
+        sudo wget https://github.com/torvalds/linux/raw/master/scripts/spelling.txt -P /usr/local/bin/
+
+  * **Easy Mutt Checkpatch**: We can add two key-binds to the `.muttrc` configuration
+    in order to easily use the checkpatch script on peer review submissions. The following
+    key-binds allow you to run checkpatch on peer review submissions without leaving mutt!
+
+      ```
+      macro index \Cp "|checkpatch.pl --no-tree --strict --show-types --ignore FILE_PATH_CHANGES"\n
+      macro index \ep "|checkpatch.pl --no-tree --strict --show-types --ignore FILE_PATH_CHANGES --ignore NOT_UNIFIED_DIFF"\n
+      ```
+     * `\Cp`: Use *CTL + P* to run the checkpatch script with the required flags and the `--ignore FILE_PATH_CHANGES` flag to prevent unnecessary warnings.
+     * `\ep`: Use *ALT + P* to run the checkpatch script with the required flags including the `--ignore FILE_PATH_CHANGES` and `--ignore NOT_UNIFIED_DIFF` flags to prevent unnecessary warnings. This is included for use on **cover letters**.
 
 * Apply the student's latest patchset submission to your local tree
 
-* Make sure each patch applies cleanly IN ORDER (a.k.a no corrupt patches, whitespace errors, etc.)
+  * **Easy Mutt Patch Applications**: Append this line to your `.muttrc` file to wire hitting the `l` key when
+  in the mutt index to having mutt run `git am` in the directory where you
+  invoked `mutt` and piping in the currently highlighted email patch
+    ```
+	  macro index l '| git am'\\n
+    ```
+  * The *Easy Mutt Patch Applications* keybind will not work if the email is open for viewing (unless you
+  add another similar line that binds the key inside of the 'pager' menu instead of the 'index' menu)
 
-* Make sure the code compiles without warnings or errors
+* Make sure each patch applies cleanly *IN ORDER*
 
-* Sanity check that any programs run without immediately crashing
+  * **Patch Application Failures**: When an application fails, git will be in a "running `git am`" state.
+    This means all subsequent uses of `git am`, either manually or with a mutt keybind will fail. In order to
+    proceed you will need to run `git am --abort` in the repository. This can be done without closing mutt by
+    pressing `!` and entering `git am --abort` and pressing enter (The `!` shortcut also works for running any
+    other shell command from within mutt).
+  * **Cover Letters**:  A cover letter has no diff so it is _not_ a patch! Don't try to apply it!
+    * An attempt to apply the cover letter will require a `git am --abort`.
+  * **Common Errors**:
+    * Whitespace at the end of any lines
+    * Extra blank lines at the end of a file
+    * Missing Patches
+    * Corrupt Patches
+    * You should ensure there is a newline at the end of every file
 
-* Make sure that the output looks reasonable
+* You must verify that the actual contents of the files added or modified by each patch are sane, for example:
 
-* Scan through the rubric, as each assignment's peer review requirements will be different
+    * If the patch adds code, the code should compile without
+      errors/warnings and not immediately crash if you run it
+
+    * If the patch adds the output of a command, is there anything
+      actually in the file? Does it look like the kind of output
+      one can expect from the command?
+
+    * If the patch includes another patch, is it corrupt?
+
+    * If the patch answers provided questions, is each one answered?
+
+* Check that any programs run without immediately crashing and make sure that the output looks reasonable
 
 * If there are any problems with the submission, report them in your review
 
 * If you determine that there are no issues with the submission, inform the recipient.
+
+* Your reply should end with a trailer in the style of your "Signed-off-by:" (DCO) line, either "Acked-by:" for approval or "Peer-reviewed-by:" 
+  if any issues are encountered.
 
 * If it turns out that there were issues with the submission that you missed, points will be deducted from your overall assignment grade
 
